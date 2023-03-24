@@ -1,4 +1,4 @@
-# turbo_neptun
+# u_neptun
 
 A new Flutter project.
 

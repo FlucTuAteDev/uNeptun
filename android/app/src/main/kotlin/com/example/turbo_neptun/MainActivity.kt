@@ -1,4 +1,4 @@
-package com.example.turbo_neptun
+package com.example.u_neptun
 
 import io.flutter.embedding.android.FlutterActivity
 

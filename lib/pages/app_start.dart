@@ -1,11 +1,10 @@
-import 'dart:convert';
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
-import 'package:http/http.dart';
-import 'package:http/io_client.dart';
-import 'package:turbo_neptun/model/university.dart';
+import 'package:u_neptun/app_secure_storage.dart';
+
+import 'package:u_neptun/model/university.dart';
+import 'package:u_neptun/api/neptun.dart';
+import 'package:u_neptun/model/user.dart';
 
 class AppStart extends StatefulWidget {
   const AppStart({super.key});
@@ -17,24 +16,21 @@ class AppStart extends StatefulWidget {
 class _AppStartState extends State<AppStart> {
   List<University> universities = List.empty();
 
-  void getInstitutions() async {
-    HttpClient client = HttpClient()..badCertificateCallback = (X509Certificate cert, String host, int port) => true;
-    IOClient ioClient = IOClient(client);
-    Response rawResponse = await ioClient.post(Uri.https("mobilecloudservice.cloudapp.net", "MobileServiceLib/MobileCloudService.svc/GetAllNeptunMobileUrls"));
-    var response = jsonDecode(rawResponse.body) as List<dynamic>;
+  void init() async {
+    User? user = await AppSecureStorage.getUser();
+    if (user == null || !await Neptun.authenticate(user)) {
+      universities = await Neptun.getAllUniversities();
+      await Navigator.pushReplacementNamed(context, "/login", arguments: universities);
+      return;
+    }
 
-    universities = response.where((e) => e["Url"] != null).map((e) => University(name: e["Name"], omCode: e["OMCode"], baseUrl: e["Url"])).toList();
-    print(universities);
-
-    await Navigator.pushReplacementNamed(context, "/login", arguments: universities);
+    await Navigator.pushReplacementNamed(context, "/home");
   }
 
   @override
   void initState() {
     super.initState();
-
-    
-    getInstitutions();
+    init();
   }
 
   @override

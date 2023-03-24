@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart';
-import 'package:turbo_neptun/api/authenticate.dart';
-import 'dart:convert';
+import 'package:u_neptun/api/neptun.dart';
+import 'package:u_neptun/app_secure_storage.dart';
 
-import 'package:turbo_neptun/components/formfields/password_input.dart';
-import 'package:turbo_neptun/model/university.dart';
+import 'package:u_neptun/components/formfields/password_input.dart';
+import 'package:u_neptun/model/university.dart';
+import 'package:u_neptun/model/user.dart';
 
 
 class Login extends StatefulWidget {
@@ -15,10 +15,24 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
-  University? selectedUniversity;
   final _formKey = GlobalKey<FormState>();
-  TextEditingController neptuneCode = TextEditingController();
+  
+  University? selectedUniversity;
+  TextEditingController neptunCode = TextEditingController();
   TextEditingController password = TextEditingController();
+
+  void login() async {
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+
+    // Selected university can't be null because the form validation takes care of it.
+    final user = User(university: selectedUniversity!, neptunCode: neptunCode.text, password: password.text);
+    if (await Neptun.authenticate(user)) {
+      await AppSecureStorage.setUser(user);
+      Navigator.pushReplacementNamed(context, "/home");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,14 +58,14 @@ class _LoginState extends State<Login> {
                   )).toList(), 
                 onChanged: (University? e) {
                   setState(() {
-                    selectedUniversity = e!;
+                    selectedUniversity = e;
                   });
                 },
                 validator: (value) => value == null ? "Az egyetem nem lehet üres!" : null,
               ),
               const SizedBox(height: 12),
               TextFormField(
-                controller: neptuneCode,
+                controller: neptunCode,
                 validator: (value) {
                   if (value?.length != 6) {
                     return "Helytelen Neptun kód!";
@@ -67,21 +81,13 @@ class _LoginState extends State<Login> {
               PasswordFormField(controller: password, hintText: "Jelszó", prefixIcon: Icons.lock_outline,),
               const SizedBox(height: 12,),
               ElevatedButton(
-                onPressed: () async {
-                  if (!_formKey.currentState!.validate()) {
-                    return;
-                  }
-                  if (await authenticate(selectedUniversity, neptuneCode.text, password.text)) {
-                    Navigator.pushReplacementNamed(context, "/home");
-                  }
-                }, 
+                onPressed: () => login(),
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size(130, 50)
                 ),
                 child: const Text("Bejelentkezés"),
               ),
               const SizedBox(height: 12,)
-              
             ],
           )
         ),

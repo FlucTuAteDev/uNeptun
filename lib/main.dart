@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:turbo_neptun/pages/app_start.dart';
-import 'package:turbo_neptun/pages/home.dart';
-import 'package:turbo_neptun/pages/login.dart';
+import 'package:u_neptun/pages/app_start.dart';
+import 'package:u_neptun/pages/home.dart';
+import 'package:u_neptun/pages/login.dart';
 
 void main() {
   runApp(const MyApp());

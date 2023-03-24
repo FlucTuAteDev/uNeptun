@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.turbo_neptun">
+    package="com.example.u_neptun">
    <application
-        android:label="turbo_neptun"
+        android:label="u_neptun"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">ű
 		<uses-permission android:name="android.permission.INTERNET"/>

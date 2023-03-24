@@ -3,10 +3,11 @@ import 'dart:io';
 
 import 'package:http/http.dart';
 import 'package:http/io_client.dart';
-import 'package:turbo_neptun/model/university.dart';
+import 'package:u_neptun/model/university.dart';
+import 'package:u_neptun/model/user.dart';
 
 class Neptun {
-  static final Uri INSTITUTIONS_URI = Uri.https("mobilecloudservice.cloudapp.net", "MobileServiceLib/MobileCloudService.svc/GetAllNeptunMobileUrls");
+  static final Uri _INSTITUTIONS_URI = Uri.https("mobilecloudservice.cloudapp.net", "MobileServiceLib/MobileCloudService.svc/GetAllNeptunMobileUrls");
 
   static IOClient _getIOClientWithoutCertValidation() {
     HttpClient client = HttpClient()..badCertificateCallback = (X509Certificate cert, String host, int port) => true;
@@ -17,7 +18,7 @@ class Neptun {
 
   static Future<List<University>> getAllUniversities() async {
     IOClient client = _getIOClientWithoutCertValidation();
-    Response rawResponse = await client.post(INSTITUTIONS_URI);
+    Response rawResponse = await client.post(_INSTITUTIONS_URI);
     var response = jsonDecode(rawResponse.body) as List<dynamic>;
 
     List<University> universities = 
@@ -32,15 +33,15 @@ class Neptun {
     return universities;
   }
 
-  static Future<bool> authenticate(University university, String neptuneCode, String password) async {
+  static Future<bool> authenticate(User user) async {
     Response response = await post( 
-      Uri.parse("${university.baseUrl}/GetMessages"),
+      Uri.parse("${user.university.baseUrl}/GetPeriodTerms"),
       headers: <String, String> {
         'Content-Type': 'application/json; charset=UTF-8'
       },
       body: jsonEncode(<String, String>{
-        'UserLogin': neptuneCode,
-        'Password': password
+        'UserLogin': user.neptunCode,
+        'Password': user.password
       })
     );
 
